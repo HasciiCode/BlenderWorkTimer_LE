@@ -1,4 +1,5 @@
 import bpy
+from ..common import utils
 
 # 機能概要
 # ポロモードタイマーのStart/Stop/Resumeトグル機能
@@ -12,7 +13,9 @@ class WORKTIMER_OT_polo_toggle(bpy.types.Operator):
     bl_label = "Toggle Polo Timer"
 
     def execute(self, context):
-        scene = context.scene
+        scene = utils.get_scene(context)
+        if not scene:
+            return {'CANCELLED'}
         
         if not scene.polo_timer_running:
             # Start
@@ -47,7 +50,9 @@ class WORKTIMER_OT_polo_reset(bpy.types.Operator):
     bl_label = "Reset Polo Timer"
 
     def execute(self, context):
-        scene = context.scene
+        scene = utils.get_scene(context)
+        if not scene:
+            return {'CANCELLED'}
         if scene.polo_mode_state == 'WORK':
             scene.polo_time_remaining = scene.polo_setting_work_h * 3600 + scene.polo_setting_work_m * 60
         else:
@@ -71,10 +76,13 @@ class WORKTIMER_OT_polo_settings(bpy.types.Operator):
     break_time_m: bpy.props.StringProperty(name="", maxlen=2) # type: ignore
 
     def invoke(self, context, event):
-        self.work_time_h = str(context.scene.polo_setting_work_h)
-        self.work_time_m = str(context.scene.polo_setting_work_m)
-        self.break_time_h = str(context.scene.polo_setting_break_h)
-        self.break_time_m = str(context.scene.polo_setting_break_m)
+        scene = utils.get_scene(context)
+        if not scene:
+            return {'CANCELLED'}
+        self.work_time_h = str(scene.polo_setting_work_h)
+        self.work_time_m = str(scene.polo_setting_work_m)
+        self.break_time_h = str(scene.polo_setting_break_h)
+        self.break_time_m = str(scene.polo_setting_break_m)
         return context.window_manager.invoke_props_dialog(self, width=220)
 
     def draw(self, context):
@@ -123,7 +131,9 @@ class WORKTIMER_OT_polo_settings(bpy.types.Operator):
         return int(s)
 
     def execute(self, context):
-        scene = context.scene
+        scene = utils.get_scene(context)
+        if not scene:
+            return {'CANCELLED'}
         
         scene.polo_setting_work_h = self._to_int(self.work_time_h)
         scene.polo_setting_work_m = min(59, self._to_int(self.work_time_m))
@@ -155,7 +165,9 @@ class WORKTIMER_OT_polo_popup_ok(bpy.types.Operator):
     def execute(self, context):
         # ネイティブダイアログに失敗した時のフォールバックとして呼ばれた場合、
         # このOKボタンが押されたタイミングで状態遷移を実行する。
-        scene = context.scene
+        scene = utils.get_scene(context)
+        if not scene:
+            return {'CANCELLED'}
         if self.mode == "WORK_DONE":
             scene.polo_mode_state = 'BREAK'
             scene.polo_time_remaining = scene.polo_setting_break_h * 3600 + scene.polo_setting_break_m * 60

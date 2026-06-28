@@ -1,4 +1,5 @@
 import bpy
+from ..common import utils
 
 # 機能概要
 # サイドバーに表示するポロモードタイマーのUIパネル
@@ -17,7 +18,9 @@ class WORKTIMER_PT_polo_panel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
+        scene = utils.get_scene(context)
+        if not scene:
+            return
 
         # 状態の表示
         state_str = "Work Time:" if scene.polo_mode_state == 'WORK' else "Break Time:"
@@ -26,7 +29,7 @@ class WORKTIMER_PT_polo_panel(bpy.types.Panel):
         
         # 残り時間の表示
         rem_sec = scene.polo_time_remaining
-        time_str = f"{rem_sec // 3600:02d}:{(rem_sec % 3600) // 60:02d}:{rem_sec % 60:02d}"
+        time_str = utils.format_time_str(rem_sec)
         col.label(text=time_str, icon='TIME')
         
         col.separator()

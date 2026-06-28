@@ -1,7 +1,7 @@
 ### Blender Work Timer (v1.0.0)
 For Blender 4.5.x LTS.
 
-![Main Interface](images/main_ui.png)
+![Main Interface](manual/images/main_ui.png)
 
 > **[ Purpose ]**
 > This add-on is designed to help you **maintain motivation** by visualizing how much time you spend in Blender every day. It also helps you **prevent overworking** by objectively tracking whether you are spending too much time on specific tasks.

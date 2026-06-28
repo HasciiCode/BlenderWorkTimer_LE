@@ -1,11 +1,5 @@
 import bpy
-from ..common import storage
-
-def _format_time(seconds_total):
-    hours = seconds_total // 3600
-    minutes = (seconds_total % 3600) // 60
-    seconds = seconds_total % 60
-    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+from ..common import utils
 
 class WORKTIMER_PT_panel(bpy.types.Panel):
     bl_idname = "WORKTIMER_PT_panel"
@@ -16,27 +10,16 @@ class WORKTIMER_PT_panel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
+        scene = utils.get_scene(context)
+        if not scene:
+            return
 
-        # 時間の計算
-        app_data = storage.get_cached_app_data()
-        saved_total = app_data.get("total_time_seconds", 0.0)
-        saved_daily = app_data.get("daily_time_seconds", 0.0)
+        # メモリ上で常に最新の時間が更新されているので、そのまま読み取る
+        total_seconds = int(getattr(scene, "work_timer_total_elapsed", 0.0))
+        daily_seconds = int(getattr(scene, "work_timer_daily_elapsed", 0.0))
         
-        from datetime import datetime
-        today_str = datetime.now().astimezone().strftime("%Y-%m-%d")
-        disk_date = app_data.get("last_active_date_local", "")
-        if disk_date != today_str:
-            saved_daily = 0.0
-            
-        session_elapsed = getattr(scene, "work_timer_session_elapsed", 0.0)
-        session_daily_elapsed = getattr(scene, "work_timer_session_daily_elapsed", 0.0)
-        
-        total_seconds = int(saved_total + session_elapsed)
-        daily_seconds = int(saved_daily + session_daily_elapsed)
-        
-        total_str = _format_time(total_seconds)
-        daily_str = _format_time(daily_seconds)
+        total_str = utils.format_time_str(total_seconds)
+        daily_str = utils.format_time_str(daily_seconds)
 
         # 表示
         col = layout.column()

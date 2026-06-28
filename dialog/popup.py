@@ -1,6 +1,7 @@
 import platform
 import subprocess
 import bpy
+from ..common import utils
 
 # 機能概要
 # タイマー終了時の状態遷移（モード切替）処理
@@ -63,7 +64,9 @@ def show_native_popup(title, message, mode, context):
             raise Exception("Unsupported OS")
             
         # OSネイティブダイアログがOK押下（またはクローズ）でリターンしたら状態遷移を実行
-        switch_polo_mode(context.scene, mode)
+        scene = utils.get_scene(context)
+        if scene:
+            switch_polo_mode(scene, mode)
             
     except Exception as e:
         print(f"[BlenderWorkTimer] Failed to show native dialog: {e}")
